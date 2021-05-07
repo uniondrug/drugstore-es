@@ -1,9 +1,8 @@
 {
-    "name" : "uniondrug/drugstore-auth",
+    "name" : "uniondrug/drugstore-es",
     "description" : "",
     "keywords" : [
         "phalcon",
-        "auth",
         "token",
         "middleware"
     ],
