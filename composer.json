@@ -16,7 +16,8 @@
     ],
     "require" : {
         "uniondrug/framework" : "^2.0",
-        "elasticsearch/elasticsearch" : "^7.9"
+        "elasticsearch/elasticsearch" : "^7.9",
+        "uniondrug/phar" : "^1.0",
     },
     "autoload" : {
         "psr-4" : {
