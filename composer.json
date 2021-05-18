@@ -19,7 +19,7 @@
         "elasticsearch/elasticsearch" : "^7.9",
         "uniondrug/phar" : "^1.0"
     },
-    "autolodugad" : {
+    "autoload" : {
         "psr-4" : {
             "Uniondrug\\DrugstoreEs\\" : "src/"
         }
