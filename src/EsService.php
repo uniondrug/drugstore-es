@@ -32,40 +32,52 @@ class EsService extends Service
         // 页码
         $from = !empty($data['page']) ? ($data['page'] - 1) * $data['limit'] : 0;
         // 必须查询
-        $query['must'] = [];
+        $must = [];
         if (isset($data['must']) && $data['must']) {
             if (isset($data['must']['term']) && $data['must']['term']) {
                 foreach ($data['must']['term'] as $key => $value) {
-                    $query['must'][] = [
+                    $must[] = [
                         'term' => $value
                     ];
                 }
             }
             if (isset($data['must']['terms']) && $data['must']['terms']) {
                 foreach ($data['must']['terms'] as $key => $value) {
-                    $query['must'][] = [
+                    $must[] = [
                         'terms' => $value
                     ];
                 }
             }
-            if (isset($data['must']['should']) && $data['must']['should']) {
-                $array['bool']['should'] = [];
-                if (isset($data['must']['should']['term']) && $data['must']['should']['term']) {
-                    foreach ($data['must']['should']['term'] as $key => $value) {
-                        $array['bool']['should'][] = [
-                            'term' => $value
-                        ];
-                    }
+        }
+        $should = [];
+        if (isset($data['should']) && $data['should']) {
+            if (isset($data['should']['term']) && $data['should']['term']) {
+                foreach ($data['should']['term'] as $key => $value) {
+                    $should[] = [
+                        'term' => $value
+                    ];
                 }
-                if (isset($data['must']['should']['terms']) && $data['must']['should']['terms']) {
-                    foreach ($data['must']['should']['terms'] as $key => $value) {
-                        $array['bool']['should'][] = [
-                            'terms' => $value
-                        ];
-                    }
-                }
-                $query['must'][] = $array;
             }
+            if (isset($data['should']['terms']) && $data['should']['terms']) {
+                foreach ($data['should']['terms'] as $key => $value) {
+                    $should[] = [
+                        'terms' => $value
+                    ];
+                }
+            }
+        }
+        $query = [];
+        if ($should) {
+            $query['should'] = $should;
+            if ($must) {
+                $query['should'][] = [
+                    'bool' => [
+                        'must' => $must
+                    ]
+                ];
+            }
+        } else {
+            $query['must'] = $must;
         }
         // 排序
         $sort = [];
@@ -107,7 +119,7 @@ class EsService extends Service
             ]
         ];
         // 获取总数
-        $count = $this->count($index, $type, $data);
+        $count = $this->count($index, $type, $query);
         $result = $this->esClient->search($params);
         $items = [];
         if (isset($result['hits']) && $result['hits'] && isset($result['hits']['hits']) && $result['hits']['hits']) {
@@ -145,39 +157,13 @@ class EsService extends Service
 
     /**
      * 获取数量
-     * {"page":1,"limit":10,"term":[{"store_organ_id":"4123"}],"terms":[],"sort":[{"name":"location","type":"location","lat":"32","lon":"120"},{"name":"star_class","type":"int","order":"desc"}]}
      * @param $index
      * @param $type
      * @param $data
      * @return int
      */
-    public function count($index, $type, $data)
+    public function count($index, $type, $query)
     {
-        // 单独查询
-        $term = [];
-        if (isset($data['term'])) {
-            foreach ($data['term'] as $key => $value) {
-                $term[] = [
-                    'term' => $value
-                ];
-            }
-        }
-        // in查询
-        $terms = [];
-        if (isset($data['terms'])) {
-            foreach ($data['terms'] as $key => $value) {
-                $terms[] = [
-                    'terms' => $value
-                ];
-            }
-        }
-        $query['must'] = [];
-        if ($term) {
-            $query['must'] = array_merge($query['must'], $term);
-        }
-        if ($terms) {
-            $query['must'] = array_merge($query['must'], $terms);
-        }
         $params = [
             'index' => $index,
             'type' => $type,
