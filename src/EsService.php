@@ -31,22 +31,40 @@ class EsService extends Service
         $size = !empty($data['limit']) ? $data['limit'] : 1;
         // 页码
         $from = !empty($data['page']) ? ($data['page'] - 1) * $data['limit'] : 0;
-        // 单独查询
-        $term = [];
-        if (isset($data['term'])) {
-            foreach ($data['term'] as $key => $value) {
-                $term[] = [
-                    'term' => $value
-                ];
+        // 必须查询
+        $query['must'] = [];
+        if (isset($data['must']) && $data['must']) {
+            if (isset($data['must']['term']) && $data['must']['term']) {
+                foreach ($data['must']['term'] as $key => $value) {
+                    $query['must'][] = [
+                        'term' => $value
+                    ];
+                }
             }
-        }
-        // in查询
-        $terms = [];
-        if (isset($data['terms'])) {
-            foreach ($data['terms'] as $key => $value) {
-                $terms[] = [
-                    'terms' => $value
-                ];
+            if (isset($data['must']['terms']) && $data['must']['terms']) {
+                foreach ($data['must']['terms'] as $key => $value) {
+                    $query['must'][] = [
+                        'terms' => $value
+                    ];
+                }
+            }
+            if (isset($data['must']['should']) && $data['must']['should']) {
+                $array['bool']['should'] = [];
+                if (isset($data['must']['should']['term']) && $data['must']['should']['term']) {
+                    foreach ($data['must']['should']['term'] as $key => $value) {
+                        $array['bool']['should'][] = [
+                            'term' => $value
+                        ];
+                    }
+                }
+                if (isset($data['must']['should']['terms']) && $data['must']['should']['terms']) {
+                    foreach ($data['must']['should']['terms'] as $key => $value) {
+                        $array['bool']['should'][] = [
+                            'terms' => $value
+                        ];
+                    }
+                }
+                $query['must'][] = $array;
             }
         }
         // 排序
@@ -75,13 +93,6 @@ class EsService extends Service
                     ];
                 }
             }
-        }
-        $query['must'] = [];
-        if ($term) {
-            $query['must'] = array_merge($query['must'], $term);
-        }
-        if ($terms) {
-            $query['must'] = array_merge($query['must'], $terms);
         }
         $params = [
             'index' => $index,
