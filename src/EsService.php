@@ -36,14 +36,14 @@ class EsService extends Service
         if (isset($data['must']) && $data['must']) {
             if (isset($data['must']['term']) && $data['must']['term']) {
                 foreach ($data['must']['term'] as $key => $value) {
-                    $must[] = [
+                    $must['bool']['must'][] = [
                         'term' => $value
                     ];
                 }
             }
             if (isset($data['must']['terms']) && $data['must']['terms']) {
                 foreach ($data['must']['terms'] as $key => $value) {
-                    $must[] = [
+                    $must['bool']['must'][] = [
                         'terms' => $value
                     ];
                 }
@@ -53,31 +53,25 @@ class EsService extends Service
         if (isset($data['should']) && $data['should']) {
             if (isset($data['should']['term']) && $data['should']['term']) {
                 foreach ($data['should']['term'] as $key => $value) {
-                    $should[] = [
+                    $should['bool']['must'][] = [
                         'term' => $value
                     ];
                 }
             }
             if (isset($data['should']['terms']) && $data['should']['terms']) {
                 foreach ($data['should']['terms'] as $key => $value) {
-                    $should[] = [
+                    $should['bool']['must'][] = [
                         'terms' => $value
                     ];
                 }
             }
         }
-        $query = [];
+        $param = [];
         if ($should) {
-            $query['should'] = $should;
-            if ($must) {
-                $query['should'][] = [
-                    'bool' => [
-                        'must' => $must
-                    ]
-                ];
-            }
-        } else {
-            $query['must'] = $must;
+            $param[] = $should;
+        }
+        if ($must) {
+            $param[] = $must;
         }
         // 排序
         $sort = [];
@@ -106,6 +100,11 @@ class EsService extends Service
                 }
             }
         }
+        $query = [
+            'bool' => [
+                'should' => $param
+            ]
+        ];
         $params = [
             'index' => $index,
             'type' => $type,
@@ -113,9 +112,7 @@ class EsService extends Service
                 'from' => $from,
                 'size' => $size,
                 'sort' => $sort,
-                'query' => [
-                    'bool' => $query
-                ]
+                'query' => $query
             ]
         ];
         // 获取总数
@@ -168,9 +165,7 @@ class EsService extends Service
             'index' => $index,
             'type' => $type,
             'body' => [
-                'query' => [
-                    'bool' => $query
-                ]
+                'query' => $query
             ]
         ];
         $count = $this->esClient->count($params);
