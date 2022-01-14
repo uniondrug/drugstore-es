@@ -48,6 +48,13 @@ class EsService extends Service
                     ];
                 }
             }
+            if (isset($data['must']['range']) && $data['must']['range']) {
+                foreach ($data['must']['range'] as $key => $value) {
+                    $must['bool']['must'][] = [
+                        'range' => $value
+                    ];
+                }
+            }
         }
         $should = [];
         if (isset($data['should']) && $data['should']) {
