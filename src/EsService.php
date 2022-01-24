@@ -105,6 +105,13 @@ class EsService extends Service
                         ]
                     ];
                 }
+                if ($value['type'] == 'date') {
+                    $sort[] = [
+                        $value['name'] => [
+                            "order" => isset($value['order']) ? $value['order'] : 'asc'
+                        ]
+                    ];
+                }
             }
         }
         $query = [
