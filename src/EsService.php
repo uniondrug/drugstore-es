@@ -56,6 +56,31 @@ class EsService extends Service
                 }
             }
         }
+        // 排除查询
+        $mustNot = [];
+        if (isset($data['mustNot']) && $data['mustNot']) {
+            if (isset($data['mustNot']['term']) && $data['mustNot']['term']) {
+                foreach ($data['mustNot']['term'] as $key => $value) {
+                    $mustNot['bool']['mustNot'][] = [
+                        'term' => $value
+                    ];
+                }
+            }
+            if (isset($data['mustNot']['terms']) && $data['mustNot']['terms']) {
+                foreach ($data['mustNot']['terms'] as $key => $value) {
+                    $mustNot['bool']['mustNot'][] = [
+                        'terms' => $value
+                    ];
+                }
+            }
+            if (isset($data['mustNot']['range']) && $data['mustNot']['range']) {
+                foreach ($data['mustNot']['range'] as $key => $value) {
+                    $mustNot['bool']['mustNot'][] = [
+                        'range' => $value
+                    ];
+                }
+            }
+        }
         $should = [];
         if (isset($data['should']) && $data['should']) {
             if (isset($data['should']['term']) && $data['should']['term']) {
@@ -79,6 +104,9 @@ class EsService extends Service
         }
         if ($must) {
             $param[] = $must;
+        }
+        if ($mustNot) {
+            $param[] = $mustNot;
         }
         // 排序
         $sort = [];
