@@ -69,6 +69,13 @@ class EsService extends Service
                     ];
                 }
             }
+            if (isset($data['must']['match_phrase']) && $data['must']['match_phrase']) {
+                foreach ($data['must']['match_phrase'] as $key => $value) {
+                    $must['bool']['must'][] = [
+                        'match_phrase' => $value
+                    ];
+                }
+            }
         }
         // 排除查询
         if (isset($data['mustNot']) && $data['mustNot']) {
