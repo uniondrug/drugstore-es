@@ -105,14 +105,14 @@ class EsService extends Service
         if (isset($data['should']) && $data['should']) {
             if (isset($data['should']['term']) && $data['should']['term']) {
                 foreach ($data['should']['term'] as $key => $value) {
-                    $should['bool']['must'][] = [
+                    $should['bool']['should'][] = [
                         'term' => $value
                     ];
                 }
             }
             if (isset($data['should']['terms']) && $data['should']['terms']) {
                 foreach ($data['should']['terms'] as $key => $value) {
-                    $should['bool']['must'][] = [
+                    $should['bool']['should'][] = [
                         'terms' => $value
                     ];
                 }
@@ -161,7 +161,7 @@ class EsService extends Service
         }
         $query = [
             'bool' => [
-                'should' => $param
+                'must' => $param
             ]
         ];
         $params = [
